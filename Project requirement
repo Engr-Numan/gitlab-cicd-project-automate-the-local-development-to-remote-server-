@@ -1,0 +1,7 @@
+
+- create index.html local system 
+- mount volume with respective docker and verify
+- move/push changes to git 
+- on commit git pipeline will be triggered and deploy all stack on stg instance
+- test the successful change on stg
+- run the cycle again 
