@@ -1,0 +1,28 @@
+image: ubuntu:latest
+
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
+    - apt-get update && apt-get install -y sshpass
+    -  mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/gitlab-ec2-key
+    - chmod 600 ~/.ssh/gitlab-ec2-key
+    - ssh-keyscan -H 54.158.31.21 >> ~/.ssh/known_hosts 
+    - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21 "cd /opt/gitlab/web-project && git pull origin master"
+    - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21 " docker stop automation || true && docker rm automation || true"
+    - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21 "docker run -d -p 5000:80  -v /opt/gitlab/web-project/index.html:/usr/share/nginx/html/index.html --name automation  nginx:latest "
+     
+     
+      #  - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21 "sudo  git clone https://gitlab.com/hnuman/web-project.git  /opt/gitlab"
+    
+
+  #  - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21 "mkdir /home/web-project  && git clone https://gitlab.com/hnuman/web-project . " 
+      #  - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21 "echo 'Hello,,,  DevOps Rolustech' > /var/www/html/index.html"
+      # - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21  "docker run -d -p 8080:80 -v .:/usr/share/nginx/html nginx:latest"
+      # - ssh -i ~/.ssh/gitlab-ec2-key ubuntu@54.158.31.21  "docker run -d -p 8081:80  httpd:latest"
+  only:
+    - master
